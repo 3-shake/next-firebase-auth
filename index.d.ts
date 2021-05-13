@@ -127,7 +127,7 @@ export const useAuthUser: () => AuthUserContext
 
 export const verifyIdToken: (token: string) => Promise<AuthUser>
 
-export const withAuthUser: <P = {}>(options?: {
+export const withAuthUser: <P = unknown>(options?: {
   whenAuthed?: AuthAction.RENDER | AuthAction.REDIRECT_TO_APP
   whenUnauthedBeforeInit?:
     | AuthAction.RENDER
