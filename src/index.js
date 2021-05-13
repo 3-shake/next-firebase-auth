@@ -42,6 +42,9 @@ const verifyIdToken = () => {
   throw new Error('"verifyIdToken" can only be called server-side.')
 }
 
+const getFirebaseAdmin = () => {
+  throw new Error('"getFirebaseAdmin" can only be called server-side.')
+}
 export default {
   init,
   withAuthUser,
@@ -52,4 +55,5 @@ export default {
   unsetAuthCookies,
   verifyIdToken,
   AuthAction,
+  getFirebaseAdmin,
 }

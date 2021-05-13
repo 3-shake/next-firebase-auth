@@ -196,6 +196,7 @@ export default withAuthUser()(Demo)
 * [unsetAuthCookies](#unsetauthcookiesreq-res)
 * [verifyIdToken](#verifyidtokentoken--promiseauthuser)
 * [AuthAction](#authaction)
+* [getFirebaseAdmin](#getfirebaseadmin--firebaseadmin)
 
 -----
 #### `init(config)`
@@ -344,6 +345,42 @@ Verifies a Firebase ID token and resolves to an [`AuthUser`](#authuser) instance
 
 An object that defines rendering/redirecting options for `withAuthUser` and `withAuthUserTokenSSR`. See [AuthAction](#authaction-1).
 
+#### `getFirebaseAdmin() => FirebaseAdmin`
+
+_Added in v0.13.1-alpha.0_
+
+A convenience function that returns the configured Firebase admin module.
+
+This can only be called from the server side. It will throw an error if called from the client side.
+
+For example:
+````jsx
+import { getFirebaseAdmin } from 'next-firebase-auth'
+// ...other imports
+
+const Artist = ({artists}) => {
+  return (
+    <ul>
+      {artists.map((artist) => <li>{artist.name}</li>)} 
+    </ul>
+  )
+}
+
+export async function getServerSideProps({ params: { id } }) {
+  const db = getFirebaseAdmin().firestore()
+  const doc = await db.collection('artists').get()
+  return {
+    props: {
+      artists: artists.docs.map((a) => {
+       return { ...a.data(), key: a.id }
+      }),
+    }
+  }
+}
+
+export default withAuthUser()(Artist)
+````
+
 ## Config
 
 See an [example config here](#example-config). Provide the config when you call `init`.
@@ -440,6 +477,24 @@ The Firebase user's email address, or null if the user has no email address.
 
 Whether the user's email address is verified.
 
+**phoneNumber** - `String|null`
+
+_Added in v0.13.1-alpha.3_
+
+The Firebase user's phone number, or null if the user has no phone number.
+
+**displayName** - `String|null`
+
+_Added in v0.13.1-alpha.3_
+
+The Firebase user's display name, or null if the user has no display name.
+
+**photoURL** - `String|null`
+
+_Added in v0.13.1-alpha.3_
+
+The Firebase user's photo URL, or null if the user has no photo URL.
+
 **claims** - `Object` - _Added in v0.13.0-alpha.2_
 
 Any [custom Firebase claims](https://firebase.google.com/docs/auth/admin/custom-claims#set_and_validate_custom_user_claims_via_the_admin_sdk).
@@ -462,11 +517,42 @@ A method that calls Firebase's [`signOut`](https://firebase.google.com/docs/refe
 
 ## Examples
 
-### Using the Firebase App
+### Using the Firebase Apps
 
-You may want to access the Firebase JS SDK or admin app. To do so, you can initialize the Firebase apps yourself _prior_ to initializing `next-firebase-auth`. [Here's some example code](https://github.com/gladly-team/next-firebase-auth/discussions/61#discussioncomment-323977) with this pattern.
+You may want to access the Firebase admin module or Firebase JS SDK.
 
-_Have a suggestion on how this can be more intuitive? Please contribute it here: [#135](https://github.com/gladly-team/next-firebase-auth/issues/135)_
+To use the Firebase admin module, you can use [`getFirebaseAdmin`](#getfirebaseadmin--firebaseadmin). (If you prefer, you can instead choose to initialize Firebase yourself _prior_ to initializing `next-firebase-auth`. [Here's some example code](https://github.com/gladly-team/next-firebase-auth/discussions/61#discussioncomment-323977) with this pattern.)
+
+To use the Firebase JS SDK, simply import Firebase as you normally would. For example:
+
+```jsx
+import firebase from 'firebase/app'
+import 'firebase/firestore'
+import { useEffect } from "react"
+
+const Artists = () => {
+  const [artists, setArtists] = useState(artists)
+  
+  useEffect(() => {
+    return firebase.firestore()
+      .collection('artists')
+      .onSnapshot( (snap) => {
+        if (!snap) {
+          return
+        }
+        setArtists(snap.docs.map(doc => ({ ...doc.data(), key: doc.id })))
+        
+      })
+  }, []);
+  
+  return (
+    <div>
+      {artists.map((artist) => <div>{artist.name}</div>)}
+    </div>
+  )
+  
+}
+```
 
 ### Testing and Mocking with Jest
 

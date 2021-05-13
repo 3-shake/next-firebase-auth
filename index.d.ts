@@ -1,5 +1,6 @@
 import * as Cookies from 'cookies'
 import type Firebase from 'firebase'
+import * as firebaseAdmin from 'firebase-admin'
 import type {
   GetServerSidePropsContext,
   GetServerSidePropsResult,
@@ -21,18 +22,22 @@ export interface AuthUser {
   id: string | null
   email: string | null
   emailVerified: boolean
+  phoneNumber: string | null
+  displayName: string | null
+  photoURL: string | null
   claims: Record<string, string | boolean>
   getIdToken: () => Promise<string | null>
   clientInitialized: boolean
   firebaseUser: Firebase.User | null
   signOut: () => Promise<void>
-  tenantId: string | null
 }
+
 export type SSRPropsContext<
   Q extends ParsedUrlQuery = ParsedUrlQuery
 > = GetServerSidePropsContext<Q> & { AuthUser: AuthUser }
 
 export type SSRPropGetter<
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   P extends { [key: string]: any } = { [key: string]: any },
   Q extends ParsedUrlQuery = ParsedUrlQuery
 > = (context: SSRPropsContext<Q>) => Promise<GetServerSidePropsResult<P>>
@@ -83,9 +88,26 @@ interface InitConfig {
     Cookies.SetOption & {
       name: string
     }
+  debug?: boolean
 }
 
 export const init: (config: InitConfig) => void
+
+// We construct an interface for the `firebase-admin` module because
+// it's not clear how to get the typing for the top-level admin export.
+// If there's a proper way to get the type, we should use it/
+// https://firebase.google.com/docs/reference/admin/node/admin
+// We extend from the App interface, which is similar but:
+// * it contains a "delete" method
+// * it does not contain an "app" or "credential" property
+// https://firebase.google.com/docs/reference/admin/node/admin.app.App-1
+interface FirebaseAdminType extends firebaseAdmin.app.App {
+  app: firebaseAdmin.app.App
+  delete: undefined
+  credential: firebaseAdmin.credential.Credential
+}
+
+export const getFirebaseAdmin: () => FirebaseAdminType
 
 export const setAuthCookies: (
   req: NextApiRequest,
