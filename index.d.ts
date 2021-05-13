@@ -35,6 +35,7 @@ export interface AuthUser {
   clientInitialized: boolean;
   firebaseUser: Firebase.User | null;
   signOut: () => Promise<void>;
+  tenantId: string | null;
 }
 
 interface AuthUserContext extends AuthUser {
@@ -65,6 +66,7 @@ interface InitConfig {
     authDomain?: string;
     databaseURL?: string;
     projectId?: string;
+    tenantId?: string;
   };
   cookies: Cookies.Option & Cookies.SetOption & {
     name: string;
