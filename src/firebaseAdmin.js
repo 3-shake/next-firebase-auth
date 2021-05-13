@@ -49,13 +49,13 @@ const refreshExpiredIdToken = async (refreshToken) => {
 /**
  * Get the firebase admin TenantAwareAuth or the BasicAuth object needed for the user
  */
- const getAuth = (AuthUser) => {
+const getAuth = (AuthUser) => {
   const admin = getFirebaseAdminApp()
   if (AuthUser.tenantId) {
     return admin.auth().tenantManager().authForTenant(AuthUser.tenantId)
   }
   return admin.auth()
- }
+}
 
 /**
  * Verify the Firebase ID token and return the Firebase user.
