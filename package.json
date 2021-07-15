@@ -1,6 +1,6 @@
 {
   "name": "@3-shake/next-firebase-auth",
-  "version": "0.13.1-alpha.3-3shake",
+  "version": "0.13.2-3shake",
   "description": "Simple Firebase authentication for all Next.js rendering strategies",
   "keywords": [
     "Next",
@@ -16,8 +16,8 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/3-shake/next-firebase-auth.git"
-  }, 
-   "author": "3-shake.com",
+  },
+  "author": "3-shake.com",
   "scripts": {
     "build": "npm-run-all -s build:clean build:src",
     "build:clean": "rm -rf ./build",
@@ -84,7 +84,7 @@
   "peerDependencies": {
     "firebase": ">=7.0.0 <9",
     "firebase-admin": "^9.0.0",
-    "next": ">=9.5.0 <11",
+    "next": ">=9.5.0 <12",
     "react": ">=16.8.0 <18",
     "react-dom": ">=16.8.0 <18"
   },
