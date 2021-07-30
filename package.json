@@ -1,6 +1,6 @@
 {
   "name": "@3-shake/next-firebase-auth",
-  "version": "0.13.2-3shake",
+  "version": "0.13.2-3shake.1",
   "description": "Simple Firebase authentication for all Next.js rendering strategies",
   "keywords": [
     "Next",
