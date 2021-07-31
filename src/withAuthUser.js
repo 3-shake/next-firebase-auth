@@ -67,6 +67,7 @@ const withAuthUser =
       const AuthUser = AuthUserFromServer
       if (firebaseInitialized) {
         AuthUser.firebaseUser = firebaseUser
+        AuthUser.clientInitialized = true
       }
 
       const isAuthed = !!AuthUser.id
