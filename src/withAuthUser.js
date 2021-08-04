@@ -69,8 +69,9 @@ const withAuthUser =
         AuthUser.firebaseUser = firebaseUser
         AuthUser.clientInitialized = true
       }
+      const isAuthed =
+        firebaseInitialized === true ? !!AuthUser.firebaseUser : !!AuthUser.id
 
-      const isAuthed = !!AuthUser.id
       const isInitialized = AuthUser.clientInitialized
 
       // Redirect to the app if the user is authed and the "whenAuthed"
