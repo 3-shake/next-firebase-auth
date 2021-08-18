@@ -52,8 +52,11 @@ const withAuthUser =
         serializedAuthUser: AuthUserSerialized,
       })
 
-      const { user: firebaseUser, initialized: firebaseInitialized } =
-        useFirebaseUser()
+      const {
+        user: firebaseUser,
+        initialized: firebaseInitialized,
+        claims,
+      } = useFirebaseUser()
       // const AuthUserFromClient = createAuthUser({
       //   firebaseUserClientSDK: firebaseUser,
       //   clientInitialized: firebaseInitialized,
@@ -64,8 +67,15 @@ const withAuthUser =
       // once it has initialized. On the server side and before the
       // client-side SDK has initialized, use the AuthUser from the
       // session.
-      const AuthUser = AuthUserFromServer
-      if (firebaseInitialized) {
+      const AuthUser =
+        AuthUserFromServer.id === null
+          ? createAuthUser({
+              firebaseUserClientSDK: firebaseUser,
+              clientInitialized: firebaseInitialized,
+              claims,
+            })
+          : AuthUserFromServer
+      if (firebaseInitialized && AuthUser.firebaseUser === null) {
         AuthUser.firebaseUser = firebaseUser
         AuthUser.clientInitialized = true
       }
