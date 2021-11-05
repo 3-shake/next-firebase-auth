@@ -1,11 +1,12 @@
 [![Build Status](https://img.shields.io/github/workflow/status/gladly-team/next-firebase-auth/Unit%20test,%20log%20code%20coverage,%20and%20build)](https://github.com/gladly-team/next-firebase-auth/actions?query=workflow%3A%22Unit+test%2C+log+code+coverage%2C+and+build%22)
 [![codecov](https://codecov.io/gh/gladly-team/next-firebase-auth/branch/main/graph/badge.svg)](https://codecov.io/gh/gladly-team/next-firebase-auth)
 [![npm](https://img.shields.io/npm/v/next-firebase-auth.svg)](https://www.npmjs.com/package/next-firebase-auth)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](./CODE_OF_CONDUCT.md)
 
 # next-firebase-auth
 Simple Firebase authentication for all Next.js rendering strategies.
 
-#### [Demo](#demo) • [Alternatives](#when-not-to-use-this-package) • [Getting Started](#get-started) • [API](#api) • [Config](#config) • [Types](#types) • [Examples](#examples) • [Troubleshooting](#troubleshooting)
+#### [Demo](#demo) • [Alternatives](#when-not-to-use-this-package) • [Getting Started](#get-started) • [API](#api) • [Config](#config) • [Types](#types) • [Examples](#examples) • [Troubleshooting](#troubleshooting) • [Contributing](./CONTRIBUTING.md)
 
 ## What It Does
 This package makes it simple to get the authenticated Firebase user and ID token during both client-side and server-side rendering (SSR).
@@ -48,6 +49,8 @@ Depending on your app's needs, other approaches might work better for you.
 Install:
 
 `yarn add next-firebase-auth`
+
+> ⚠️ If you're using v9 of the Firebase JS SDK, use `next-firebase-auth@canary`. This is an unstable v1 prerelease. Track progress on v1 [in this issue](https://github.com/gladly-team/next-firebase-auth/issues/265).
 
 Make sure peer dependencies are also installed:
 
@@ -221,8 +224,8 @@ Option | Description | Default
 `whenAuthed` | The action to take if the user is authenticated. One of `AuthAction.RENDER` or `AuthAction.REDIRECT_TO_APP`. | `AuthAction.RENDER`
 `whenUnauthedBeforeInit` | The action to take if the user is *not* authenticated but the Firebase client JS SDK has not yet initialized. One of: `AuthAction.RENDER`, `AuthAction.REDIRECT_TO_LOGIN`, `AuthAction.SHOW_LOADER`. | `AuthAction.RENDER`
 `whenUnauthedAfterInit` | The action to take if the user is *not* authenticated and the Firebase client JS SDK has already initialized. One of: `AuthAction.RENDER`, `AuthAction.REDIRECT_TO_LOGIN`. | `AuthAction.RENDER`
-`appPageURL` | The redirect destination URL when we should redirect to the app. | `config.appPageURL`
-`authPageURL` | The redirect destination URL when we should redirect to the login page. | `config.authPageURL`
+`appPageURL` | The redirect destination URL when we should redirect to the app. Can be a string or a function that receives `{ ctx }` and returns a URL. | `config.appPageURL`
+`authPageURL` | The redirect destination URL when we should redirect to the login page. Can be a string or a function that receives `{ ctx }` and returns a URL. | `config.authPageURL`
 `LoaderComponent` | The component to render when the user is unauthed and `whenUnauthedBeforeInit` is set to `AuthAction.SHOW_LOADER`. | null
 
 For example, this page will redirect to the login page if the user is not authenticated:
@@ -253,6 +256,8 @@ export default withAuthUser({
 })(LoginPage)
 ```
 
+For TypeScript usage, take a look [here](#typescript).
+
 #### `withAuthUserTokenSSR({ ...options })(getServerSidePropsFunc = ({ AuthUser }) => {})`
 
 A higher-order function that wraps a Next.js pages's `getServerSideProps` function to provide the `AuthUser` context during server-side rendering. Optionally, it can server-side redirect based on the user's auth status. A wrapped function is optional; if provided, it will be called with a `context` object that contains an [`AuthUser`](#authuser) property.
@@ -263,8 +268,8 @@ Option | Description | Default
 ------------ | ------------- | -------------
 `whenAuthed` | The action to take if the user is authenticated. Either `AuthAction.RENDER` or `AuthAction.REDIRECT_TO_APP`. | `AuthAction.RENDER`
 `whenUnauthed` | The action to take if the user is *not* authenticated. Either `AuthAction.RENDER` or `AuthAction.REDIRECT_TO_LOGIN`. | `AuthAction.RENDER`
-`appPageURL` | The redirect destination URL when we should redirect to the app. | `config.appPageURL`
-`authPageURL` | The redirect destination URL when we should redirect to the login page. | `config.authPageURL`
+`appPageURL` | The redirect destination URL when we should redirect to the app. Can be a string or a function that receives `{ ctx }` and returns a URL. | `config.appPageURL`
+`authPageURL` | The redirect destination URL when we should redirect to the login page. Can be a string or a function that receives `{ ctx }` and returns a URL. | `config.authPageURL`
 
 
 For example, this page will SSR for authenticated users, fetching props using their Firebase ID token, and will server-side redirect to the login page if the user is not authenticated:
@@ -394,9 +399,9 @@ export default withAuthUser()(Artist)
 
 See an [example config here](#example-config). Provide the config when you call `init`.
 
-**authPageURL**: The default URL to navigate to when `withAuthUser` or `withAuthUserTokenSSR` need to redirect to login. Optional unless using the `AuthAction.REDIRECT_TO_LOGIN` auth action.
+**authPageURL**: The default URL to navigate to when `withAuthUser` or `withAuthUserTokenSSR` need to redirect to login. Can be a string or a function that receives `{ ctx }` and returns a URL. Optional unless using the `AuthAction.REDIRECT_TO_LOGIN` auth action.
 
-**appPageURL**: The default URL to navigate to when `withAuthUser` or `withAuthUserTokenSSR` need to redirect to the app. Optional unless using the `AuthAction.REDIRECT_TO_APP` auth action.
+**appPageURL**: The default URL to navigate to when `withAuthUser` or `withAuthUserTokenSSR` need to redirect to the app. Can be a string or a function that receives `{ ctx }` and returns a URL. Optional unless using the `AuthAction.REDIRECT_TO_APP` auth action.
 
 **loginAPIEndpoint**: The API endpoint this module will call when the auth state changes for an authenticated Firebase user. Must be set unless `tokenChangedHandler` is set.
 
@@ -527,6 +532,10 @@ The user from the Firebase JS SDK, if it has initialized. Otherwise, null.
 A method that calls Firebase's [`signOut`](https://firebase.google.com/docs/reference/js/firebase.auth.Auth#signout) if the Firebase JS SDK has initialized. If the SDK has not initialized, this method is a noop.
 
 ## Examples
+* [Using the Firebase Apps](#using-the-firebase-apps)
+* [TypeScript](#typescript)
+* [Dynamic Redirects](#dynamic-redirects)
+* [Testing and Mocking with Jest](#testing-and-mocking-with-jest)
 
 ### Using the Firebase Apps
 
@@ -563,6 +572,104 @@ const Artists = () => {
   )
   
 }
+```
+
+
+### TypeScript
+
+When using `withAuthUser` with TypeScript, use [TypeScript Generics](https://www.typescriptlang.org/docs/handbook/2/generics.html). For example:
+
+```TypeScript
+// /pages/demo.tsx
+import { VFC } from 'react'
+import { Loading } from 'components/Loading/Loading'
+import { AuthAction, withAuthUser } from 'next-firebase-auth'
+
+type DemoDataType = {
+  name: string
+}
+
+const Demo: VFC<DemoDataType> = ({ name }) => {
+  return <div>Hello {name}!</div>
+}
+
+export default withAuthUser<DemoDataType>({ // <--- Ensure that the type is provided
+  whenUnauthedBeforeInit: AuthAction.SHOW_LOADER,
+  whenUnauthedAfterInit: AuthAction.REDIRECT_TO_LOGIN,
+  LoaderComponent: Loading,
+})(Demo)
+```
+
+For a full example with server-side data fetching, see the [TypeScript demo page](https://github.com/gladly-team/next-firebase-auth/blob/main/example/pages/ssr-no-token.tsx) in the example app.
+
+### Dynamic Redirects
+
+This package makes it easy to redirect to a login page or app page depending on whether a user is logged in. The destination URLs can also be dynamic: the `authPageURL` and `appPageURL` properties, used in the config and higher-order components, can be functions that receive `{ ctx }` and return a URL.
+
+The [example app](https://github.com/gladly-team/next-firebase-auth/tree/main/example) uses this to set a post-login destination URL:
+
+```js
+// ./utils/initAuth.js
+import { init } from 'next-firebase-auth'
+import absoluteUrl from 'next-absolute-url'
+
+const initAuth = () => init({
+  // This demonstrates setting a dynamic destination URL when
+  // redirecting from app pages. Alternatively, you can simply
+  // specify `authPageURL: '/auth-ssr'`.
+  authPageURL: ({ ctx }) => {
+    const isServerSide = typeof window === 'undefined'
+    const origin = isServerSide
+      ? absoluteUrl(ctx.req).origin
+      : window.location.origin
+    const destPath =
+      typeof window === 'undefined' ? ctx.resolvedUrl : window.location.href
+    const destURL = new URL(destPath, origin)
+    return `auth-ssr?destination=${encodeURIComponent(destURL)}`
+  },
+
+  // This demonstrates setting a dynamic destination URL when
+  // redirecting from auth pages. Alternatively, you can simply
+  // specify `appPageURL: '/'`.
+  appPageURL: ({ ctx }) => {
+    const isServerSide = typeof window === 'undefined'
+    const origin = isServerSide
+      ? absoluteUrl(ctx.req).origin
+      : window.location.origin
+    const params = isServerSide
+      ? new URL(ctx.req.url, origin).searchParams
+      : new URLSearchParams(window.location.search)
+    const destinationParamVal = params.get('destination')
+      ? decodeURIComponent(params.get('destination'))
+      : undefined
+
+    // By default, go to the index page if the destination URL
+    // is invalid or unspecified.
+    let destURL = '/'
+    if (destinationParamVal) {
+      // Verify the redirect URL host is allowed.
+      // https://owasp.org/www-project-web-security-testing-guide/v41/4-Web_Application_Security_Testing/11-Client_Side_Testing/04-Testing_for_Client_Side_URL_Redirect
+      const allowedHosts = ['localhost:3000', 'nfa-example.vercel.app']
+      const allowed =
+        allowedHosts.indexOf(new URL(destinationParamVal).host) > -1
+      if (allowed) {
+        destURL = destinationParamVal
+      } else {
+        // eslint-disable-next-line no-console
+        console.warn(
+          `Redirect destination host must be one of ${allowedHosts.join(
+            ', '
+          )}.`
+        )
+      }
+    }
+    return destURL
+  },
+
+  // ... other config
+}
+
+export default initAuth
 ```
 
 ### Testing and Mocking with Jest
@@ -795,15 +902,6 @@ We expect some apps will need some features that are not currently available:
 
 We'd love to hear your feedback on these or other features. Please feel free to [open a discussion](https://github.com/gladly-team/next-firebase-auth/discussions)!
 
-## Developing / Contributing
+## Contributing
 
-We welcome contributions! Please feel free to jump into any open issues.
-
-### Using a local version of the package
-
-It can be helpful to use an in-development version of `next-firebase-auth` in another app:
-
-1. Install [yalc](https://www.npmjs.com/package/yalc): `yarn global add yalc`
-2. In `next-firebase-auth`, publish a local version: `yarn run dev:publish` -- this builds your local package code, then publishes it with Yalc
-3. In another local Next.js app: `yalc add next-firebase-auth`
-4. After you make changes to your local `next-firebase-auth`, use `yarn run dev:publish` again to use the latest local code in your app
+We welcome contributions! Please see [contributing docs](./CONTRIBUTING.md) to get started.

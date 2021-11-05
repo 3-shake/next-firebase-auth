@@ -1,5 +1,4 @@
 /* eslint no-underscore-dangle: 0 */
-import logDebug from 'src/logDebug'
 import isClientSide from 'src/isClientSide'
 import { filterStandardClaims } from 'src/claims'
 
@@ -48,14 +47,6 @@ const createAuthUser = ({
   token = null,
   claims,
 } = {}) => {
-  logDebug('Called createAuthUser with arguments:', {
-    firebaseUserClientSDK,
-    firebaseUserAdminSDK,
-    serializedAuthUser,
-    clientInitialized,
-    token,
-    claims,
-  })
   // Ensure only one of the user input types is defined.
   const numUserInputsDefined = [
     firebaseUserClientSDK,
@@ -126,7 +117,19 @@ const createAuthUser = ({
     phoneNumber = firebaseUserClientSDK.phoneNumber
     displayName = firebaseUserClientSDK.displayName
     photoURL = firebaseUserClientSDK.photoURL
-    getIdTokenFunc = async () => firebaseUserClientSDK.getIdToken()
+
+    /**
+     * Returns a JSON Web Token (JWT) used to identify the user to a Firebase
+     * service.
+     *
+     * Returns the current token if it has not expired. Otherwise, this will
+     * refresh the token and return a new one.
+     *
+     * @param forceRefresh Force refresh regardless of token
+     *     expiration.
+     */
+    getIdTokenFunc = async (forceRefresh) =>
+      firebaseUserClientSDK.getIdToken(forceRefresh)
     signOut = async () => firebase.auth().signOut()
     tokenString = null
     tenantId = firebaseUserClientSDK.tenantId
