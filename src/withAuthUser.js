@@ -50,7 +50,8 @@ const withAuthUser =
   (ChildComponent) => {
     const WithAuthUserHOC = (props) => {
       const { AuthUserSerialized, ...otherProps } = props
-// <<<<<<< HEAD
+      /*
+<<<<<<< HEAD
       const AuthUserFromServer = createAuthUser({
         serializedAuthUser: AuthUserSerialized,
       })
@@ -65,7 +66,8 @@ const withAuthUser =
       //   clientInitialized: firebaseInitialized,
       //   claims,
       // })
-// =======
+=======
+*/
       const AuthUserFromServer = useMemo(
         () =>
           createAuthUser({
